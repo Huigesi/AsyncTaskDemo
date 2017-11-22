@@ -11,6 +11,7 @@ import org.apache.http.util.EntityUtils;
 import android.support.v7.app.ActionBarActivity;
 import android.R.integer;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
@@ -20,6 +21,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 public class MainActivity extends ActionBarActivity {
 	private ImageView img;
+	private Button btn2;
 	private Button btn;
 	private final String IMAGE_PATH="https://www.baidu.com/img/bd_logo1.png";
 	private ProgressDialog dialog;
@@ -30,6 +32,7 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.fragment_main);
         img=(ImageView)findViewById(R.id.imageView1);
         btn=(Button)findViewById(R.id.button1);
+        btn2=(Button)findViewById(R.id.button2);
         dialog=new ProgressDialog(this);
         dialog.setTitle("提示");
 		dialog.setMessage("正在加载图片");
@@ -40,6 +43,15 @@ public class MainActivity extends ActionBarActivity {
 			public void onClick(View arg0) {
 				
 				new Mytask().execute(IMAGE_PATH);
+			}
+		});
+        btn2.setOnClickListener(new View.OnClickListener() {	
+			@Override
+			public void onClick(View view) {
+				Intent intent=new Intent(MainActivity.this,ProgressBarActivity.class);
+				startActivity(new Intent(intent));
+				
+				//new Mytask().execute(IMAGE_PATH);
 			}
 		});
     }
