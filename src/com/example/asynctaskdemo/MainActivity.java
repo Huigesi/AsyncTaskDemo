@@ -1,4 +1,7 @@
 package com.example.asynctaskdemo;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -6,6 +9,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 
 import android.support.v7.app.ActionBarActivity;
+import android.R.integer;
 import android.app.ProgressDialog;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -29,6 +33,7 @@ public class MainActivity extends ActionBarActivity {
         dialog=new ProgressDialog(this);
         dialog.setTitle("提示");
 		dialog.setMessage("正在加载图片");
+		dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		dialog.setCancelable(false);
         btn.setOnClickListener(new View.OnClickListener() {	
 			@Override
@@ -46,14 +51,29 @@ public class MainActivity extends ActionBarActivity {
     	}
 		@Override
 		protected byte[] doInBackground(String... params) {
+		  
 			HttpClient hcClient= new DefaultHttpClient();
 			HttpGet httpGet=new HttpGet(params[0]);
 			byte[] result=null;
+			InputStream iStream=null;
+			ByteArrayOutputStream outputStream=new ByteArrayOutputStream();
 			try {
 				HttpResponse httpResponse=hcClient.execute(httpGet);
+				long file_length = httpResponse.getEntity().getContentLength();
+				int len=0;
+				int total_length=0;
+				byte[] data=new byte[1024];
 				if (httpResponse.getStatusLine().getStatusCode()==200) {
-					result=EntityUtils.toByteArray(httpResponse.getEntity());
+					//result=EntityUtils.toByteArray(httpResponse.getEntity());
+					iStream=httpResponse.getEntity().getContent();
+					while ((len=iStream.read(data))!=-1) {
+						total_length += len;
+						int progress_value=(int)((total_length/(float)file_length)*100);
+						publishProgress(progress_value);//发布刻度单位
+						outputStream.write(data,0,len);
+					}
 				}
+				result=outputStream.toByteArray();
 			} catch (Exception e) {
 				e.printStackTrace();
 			} finally{
@@ -61,7 +81,13 @@ public class MainActivity extends ActionBarActivity {
 			}
 			return result;
 		}
+		
 
+		@Override
+		protected void onProgressUpdate(Integer... values) {
+			super.onProgressUpdate(values);
+			dialog.setProgress(values[0]);
+		}
 		@Override
 		protected void onPostExecute(byte[] result) {
 			// 更新UI
