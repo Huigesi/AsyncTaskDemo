@@ -55,10 +55,8 @@ public class ProgressBarActivity extends Activity{
 			}
 			return null;
 		}
-
 		@Override
 		protected void onProgressUpdate(Integer... values) {
-			
 			if(isCancelled()){
 				return;
 			}
